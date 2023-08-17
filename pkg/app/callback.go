@@ -9,7 +9,7 @@ import (
 )
 
 // Handler for our callback.
-func CallBackHandler(auth *api.Authenticator) gin.HandlerFunc {
+func CallbackHandler(auth *api.Authenticator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
 		if ctx.Query("state") != session.Get("state") {
@@ -20,7 +20,7 @@ func CallBackHandler(auth *api.Authenticator) gin.HandlerFunc {
 		// Exchange an authorization code for a token.
 		token, err := auth.Exchange(ctx.Request.Context(), ctx.Query("code"))
 		if err != nil {
-			ctx.String(http.StatusUnauthorized, "Failed to exchange an authorization code for a token.")
+			ctx.String(http.StatusUnauthorized, "Failed to convert an authorization code into a token.")
 			return
 		}
 
