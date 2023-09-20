@@ -28,7 +28,7 @@ services:
     depends_on:
       - db_wisp_manage
     ports:
-      - "5678:80" #connection port
+      - "5678:80" # connection port
     env_file:
       - .env
     networks:
