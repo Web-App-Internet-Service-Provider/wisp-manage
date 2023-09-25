@@ -14,7 +14,7 @@ var (
 	err error
 )
 
-// SetUpDatabaseConnection opens a database, runs migrations and saves the reference to `Database` struct.
+// SetUpDatabaseConnection opens a database, runs migrations and saves the reference to `Database`.
 func SetUpDatabaseConnection() *gorm.DB {
 	var db *gorm.DB
 
@@ -40,7 +40,7 @@ func SetUpDatabaseConnection() *gorm.DB {
 	}
 	// Run database migrations for the models
 	db.AutoMigrate(models.BillingStatement{}, models.Customer{}, models.ExtensionLog{}, models.Invoice{},
-		models.Location{}, models.Messagelog{}, models.MessageTemplate{}, models.OrganizationSetting{},
+		models.Location{}, models.MessageLog{}, models.MessageTemplate{}, models.OrganizationSetting{},
 		models.Organization{}, models.PaymentDetail{}, models.PaymentMethod{}, models.PlanStation{},
 		models.PlanType{}, models.Plan{}, models.Pool{}, models.Service{}, models.Station{},
 		models.User{})
