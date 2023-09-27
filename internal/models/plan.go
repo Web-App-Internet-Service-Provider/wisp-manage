@@ -1,7 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 // Plan is used to map your plans database table to your go code.
 type Plan struct {
+	gorm.Model
 	Name           string `gorm:"column:plan_name" json:"plan_name"`
 	PlanTypeID     uint64 `gorm:"column:plan_type_id" json:"plan_type_id"`
 	Price          int    `gorm:"column:plan_price" json:"plan_price"`
