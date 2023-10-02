@@ -38,6 +38,7 @@ func SetUpDatabaseConnection() *gorm.DB {
 		fmt.Println("db err: ", err)
 		return nil
 	}
+
 	// Run database migrations for the models
 	db.AutoMigrate(models.BillingStatement{}, models.Customer{}, models.ExtensionLog{}, models.Invoice{},
 		models.Location{}, models.MessageLog{}, models.MessageTemplate{}, models.OrganizationSetting{},
