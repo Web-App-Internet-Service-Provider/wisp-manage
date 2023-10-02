@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -13,8 +13,6 @@ type JWTClaim struct {
 	Email    string `json:"email"`
 	jwt.RegisteredClaims
 }
-
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 // GenerateToken -> generates token
 func GenerateToken(userid uint) string {
@@ -31,28 +29,14 @@ func GenerateToken(userid uint) string {
 }
 
 // ValidateToken --> validate the given token
-func ValidateToken(signedToken string) (err error) {
-	token, err := jwt.ParseWithClaims(
-		signedToken,
-		&JWTClaim{},
-		func(t *jwt.Token) (interface{}, error) {
-			return []byte(jwtKey), nil
-		},
-	)
-	if err != nil {
-		return nil
-	}
+func ValidateToken(token string) (*jwt.Token, error) {
 
-	claims, ok := token.Claims.(*JWTClaim)
-	if !ok {
-		err = errors.New("could not parse claims")
-		return
-	}
-
-	if claims.ExpiresAt.Unix() < time.Now().Local().Unix() {
-		err = errors.New("token expired")
-		return
-	}
-
-	return nil
+	//2nd arg function return secret key after checking if the signing method is HMAC and returned key is used by 'Parse' to decode the token)
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			//nil secret key
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
 }

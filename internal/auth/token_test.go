@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func TestGenerateToken(t *testing.T) {
@@ -26,19 +29,25 @@ func TestGenerateToken(t *testing.T) {
 
 func TestValidateToken(t *testing.T) {
 	type args struct {
-		signedToken string
+		token string
 	}
 	tests := []struct {
 		name    string
 		args    args
+		want    *jwt.Token
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := ValidateToken(tt.args.signedToken); (err != nil) != tt.wantErr {
+			got, err := ValidateToken(tt.args.token)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateToken() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ValidateToken() = %v, want %v", got, tt.want)
 			}
 		})
 	}
