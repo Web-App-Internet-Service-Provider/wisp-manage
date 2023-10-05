@@ -2,20 +2,18 @@ version: "3.8"
 
 services:
   db_wisp_manage:
-    image: postgis/postgis
+    image: postgres:latest
     container_name: db_wisp_manage
     restart: always
-    networks:
-      wisp_manage:
-        aliases:
-          - database
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - DATABASE_HOST=${DB_HOST}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      DATABASE_HOST: ${DB_HOST}
     ports:
-      - "1234:1234"
+      - "5432:5432"
+    env_file:
+      - .env
     volumes:
       - dbdata:/var/lib/postgresql/data
 
@@ -31,8 +29,6 @@ services:
       - "5678:80" # connection port
     env_file:
       - .env
-    networks:
-      - wisp_manage
     restart: unless-stopped
 
   mailhog:
@@ -42,8 +38,7 @@ services:
     ports:
       - "1025:1025" # smtp server
       - "8025:8025" # web ui
-    networks:
-      - 'wisp_manage'
+
   cache:
     image: redis:6.2.6
     container_name: cache_wisp_manage
@@ -53,10 +48,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - cache:/data
-    networks:
-      wisp_manage:
-        aliases:
-          - "cache"
+
 
   file_storage:
     container_name: fs_wisp_manage
@@ -66,10 +58,6 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${MINIO_ACCESS_KEY}
-    networks:
-      wisp_manage:
-        aliases:
-          - "file_storage"
     env_file:
       - .env
     ports:
@@ -83,6 +71,3 @@ volumes:
   cache:
     driver: local
 
-networks:
-  wisp_manage:
-    driver: bridge

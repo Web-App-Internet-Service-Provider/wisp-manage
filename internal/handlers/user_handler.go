@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/AbdulrahmanDaud10/wisp-manage/internal/auth"
 	"github.com/AbdulrahmanDaud10/wisp-manage/internal/models"
 	"github.com/AbdulrahmanDaud10/wisp-manage/internal/repository"
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ import (
 type UserHandler interface {
 	AddUser(*gin.Context)
 	GetUser(*gin.Context)
+	SignInUser(*gin.Context)
 	GetAllUser(*gin.Context)
 	UpdateUser(*gin.Context)
 	DeleteUser(*gin.Context)
@@ -60,6 +62,29 @@ func (h *userHandler) GetUser(ctx *gin.Context) {
 
 }
 
+func (h *userHandler) SignInUser(ctx *gin.Context) {
+	var user models.User
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	dbUser, err := h.repo.GetByEmail(user.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"msg": "No Such User Found"})
+		return
+
+	}
+
+	if isTrue := user.ComparePassword(dbUser.Password, user.Password); isTrue {
+		fmt.Println("user before", dbUser.ID)
+		token := auth.GenerateToken(dbUser.ID)
+		ctx.JSON(http.StatusOK, gin.H{"msg": "Successfully Signed in", "token": token})
+		return
+	}
+	ctx.JSON(http.StatusInternalServerError, gin.H{"msg": "Password not matched"})
+
+}
+
 func (h *userHandler) AddUser(ctx *gin.Context) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
@@ -67,6 +92,14 @@ func (h *userHandler) AddUser(ctx *gin.Context) {
 		return
 	}
 
+	models.HashPassword(&user.Password)
+	user, err := h.repo.AddUser(user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+
+	}
+	user.Password = ""
 	ctx.JSON(http.StatusOK, user)
 
 }
