@@ -12,6 +12,7 @@ type OrganizationSettingRepository interface {
 	AddOrganizationSetting(models.OrganizationSetting) (models.OrganizationSetting, error)
 	UpdateOrganizationSetting(models.OrganizationSetting) (models.OrganizationSetting, error)
 	DeleteOrganizationSetting(models.OrganizationSetting) (models.OrganizationSetting, error)
+	GetSettingValue(string) (string, error)
 }
 type organizationSettingRepository struct {
 	connection *gorm.DB
@@ -48,4 +49,18 @@ func (db *organizationSettingRepository) DeleteOrganizationSetting(organizationS
 		return organizationSetting, err
 	}
 	return organizationSetting, db.connection.Delete(&organizationSetting).Error
+}
+
+func (db *organizationSettingRepository) GetSettingValue(key string) (string, error) {
+
+	// get single orgsetting object from db
+	// select.first value where key=key and orgid=orguid
+	settingObject := models.OrganizationSetting{}
+	err := db.connection.Where("organization_key= ?", key).Where("organization_id= ?", settingObject.ID).First(&settingObject)
+	if err != nil {
+		return "", nil
+	}
+
+	// if found: return value and nil error
+	return settingObject.Value, nil
 }

@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 // OrganizationSetting is used to map your locations database table to your go code.
 type OrganizationSetting struct {
